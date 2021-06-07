@@ -8,10 +8,13 @@ const urlDatabase = {
 };
 
 app.get('/', (req, res) => {
-  console.log(req)
-  res.send('Hello!')
+  res.send('Hello!\nYou can access the url page through , /urls.json')
 });
 
 app.listen(PORT, () => {
   console.log(`connected on port: ${PORT}!`)
+})
+
+app.get('/urls.json', (req, res) => {
+  res.json(urlDatabase)
 })
