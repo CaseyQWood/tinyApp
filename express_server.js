@@ -6,9 +6,12 @@ const urlDatabase = {
   "b2xVn2": "http://www.lighthouselabs.ca",
   "9sm5xK": "http://www.google.com"
 };
+app.get('/hello', (req, res) => {
+  res.end('<html><body>Hello <b>World</b></body></html>\n')
+})
 
 app.get('/', (req, res) => {
-  res.send('Hello!\nYou can access the url page through , /urls.json')
+  res.send('Hello!\nYou can access other pages through , /urls.json, /hello')
 });
 
 app.listen(PORT, () => {
