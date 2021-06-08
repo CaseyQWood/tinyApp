@@ -19,14 +19,6 @@ app.get('/urls', (req, res) => {
   res.render('urls_index', templateVars)
 })
 
-app.get('/hello', (req, res) => {
-  res.end('<html><body>Hello <b>World</b></body></html>\n')
-})
-
-app.get('/', (req, res) => {
-  res.send('Hello!\nYou can access other pages through , /urls.json, /hello, /urls')
-});
-
 app.get('/urls.json', (req, res) => {
   res.json(urlDatabase)
 })
@@ -34,6 +26,13 @@ app.get('/urls.json', (req, res) => {
 app.get('/urls/new', (req, res) => {
   res.render('urls_new')
 })
+
+app.post("/urls/:shortURL/delete", (req, res) => {
+  console.log(req.params.shortURL);
+  delete urlDatabase[req.params.shortURL]
+  console.log(urlDatabase)
+  res.redirect('/urls')
+});
 
 app.post("/urls", (req, res) => {
   console.log(req.body);  // Log the POST request body to the console
@@ -62,3 +61,10 @@ app.listen(PORT, () => {
   console.log(`connected on port: ${PORT}!`)
 })
 
+// app.get('/hello', (req, res) => {
+//   res.end('<html><body>Hello <b>World</b></body></html>\n')
+// })
+
+// app.get('/', (req, res) => {
+//   res.send('Hello!\nYou can access other pages through , /urls.json, /hello, /urls')
+// });
