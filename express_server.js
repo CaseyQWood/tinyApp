@@ -24,6 +24,7 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
   res.redirect('/urls');
 });
+
 // END OF MY URLS-------------------
 
 // NEW URLS ------------------------
@@ -42,6 +43,13 @@ app.get('/urls/:shortURL', (req, res) => {
   res.render('urls_show', templateVars);
 })
 
+// Edit LongUrl
+app.post('/urls/:shortURL/edit', (req, res) => {
+  // console.log(req.params.shortURL)
+  // console.log(req.body.longURL)
+ urlDatabase[req.params.shortURL] = req.body.longURL
+ res.redirect(`/urls/${req.params.shortURL}`)
+})
 // redirect from created page
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
