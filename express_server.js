@@ -54,11 +54,17 @@ app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
   console.log(users)
-   for(const account in users) {
-     if(email === users[account].email) {
+    for(const account in users) {
+      if(email !== users[account].email ) {
+        res.send('Response: 403. \nNo user found. please register')
+       } 
+       if(email === users[account].email && password !== users[account].password) {
+        res.send('Response: 403. \nIncorrect login information, please try again')
+       } 
+      if(email === users[account].email && password === users[account].password) {
        res.cookie('user_id', account)
-     }
-   }
+      } 
+    }
 
   res.redirect('/urls');
 })
