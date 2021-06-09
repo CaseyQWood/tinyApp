@@ -51,7 +51,15 @@ app.get('/login', (req, res) => {
 })
 
 app.post('/login', (req, res) => {
-  // res.cookie('username', req.body.username)
+  const email = req.body.email;
+  const password = req.body.password;
+  console.log(users)
+   for(const account in users) {
+     if(email === users[account].email) {
+       res.cookie('user_id', account)
+     }
+   }
+
   res.redirect('/urls');
 })
 
