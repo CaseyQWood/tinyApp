@@ -41,6 +41,24 @@ app.post('/logout', (req, res) => {
 })
 // END OF LOGIN/LOGOUT-------------
 
+//REGISTRATION PAGE-----------------
+app.get('/urls/registration', (req, res) => {
+  const templateVars = {
+    username: req.cookies["username"],
+    urls: urlDatabase
+  }
+  res.render('registration', templateVars)
+})
+
+app.post('/urls/registration', (req, res) => {
+  const email = req.body.email
+  const password = req.body.password
+// console.log(email)
+// console.log(password)
+res.redirect('/urls')
+})
+//END OF REGISTRATION PAGE----------
+
 
 // NEW URLS ------------------------
 app.get('/urls/new', (req, res) => {
