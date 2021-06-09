@@ -116,6 +116,9 @@ app.get('/urls/new', (req, res) => {
     user: req.cookies['user_id'],
     users
   }
+  if(!res.cookies) {
+    return res.redirect('/urls/registration')
+  }
   res.render('urls_new', templateVars);
 })
 
