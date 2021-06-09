@@ -49,7 +49,7 @@ app.get('/urls/registration', (req, res) => {
   }
   res.render('registration', templateVars)
 })
-
+// test
 app.post('/urls/registration', (req, res) => {
   const email = req.body.email
   const password = req.body.password
