@@ -8,11 +8,13 @@
       <div class="navbar-nav mr-auto">
         <a class="nav-item nav-link" href="/urls">My URLs</a>
         <a class="nav-item nav-link" href="/urls/new">Create New URL</a>
+        <a class="nav-item nav-link" href="/urls/registration">Register</a>
       </div>
-      <% if(username) { %>
+      <% if(user) { %>
+        <small class='form-text text-muted'><%=users[user].email%></small>
         <form action='/logout' method=POST><button type="submit" class="btn btn-secondary">logout</button></form>
         <% } else { %>
-        <small class='form-text text-muted'><%=username%></small>
+        <small class='form-text text-muted'><%=user%></small>
         <form action='/login' method='POST' class="form-inline">
           <input type="text" class="form-control" placeholder="Username" name='username'>
           <button type="submit" class="btn btn-secondary">Submit</button>
