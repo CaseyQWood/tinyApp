@@ -1,9 +1,10 @@
 const bodyParser = require("body-parser");
 const express = require('express');
-const cookie = require('cookie-parser')
+const cookieParser = require('cookie-parser')
 const app = express();
 const PORT = 8080 ;
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser())
 app.set('view engine', 'ejs');
 
 // DATABASE
@@ -16,6 +17,7 @@ const urlDatabase = {
 // MY URLS FUNCTIONALITY-------------
 app.get('/urls', (req, res) => {
   const templateVars = {
+    username: req.cookies["username"],
     urls: urlDatabase
   }
   res.render('urls_index', templateVars);
@@ -25,8 +27,18 @@ app.post("/urls/:shortURL/delete", (req, res) => {
   delete urlDatabase[req.params.shortURL];
   res.redirect('/urls');
 });
-
 // END OF MY URLS-------------------
+
+// LOGIN--------------------
+app.post('/login', (req, res) => {
+  res.cookie('username', req.body.username)
+  console.log('cookies:', req.cookies)
+  console.log('signed cookies:', req.signedCookies)
+  res.redirect('/urls');
+  // res.send(200) check this later
+})
+// END OF LOGIN-------------
+
 
 // NEW URLS ------------------------
 app.get('/urls/new', (req, res) => {
@@ -46,8 +58,6 @@ app.get('/urls/:shortURL', (req, res) => {
 
 // Edit LongUrl
 app.post('/urls/:shortURL/edit', (req, res) => {
-  // console.log(req.params.shortURL)
-  // console.log(req.body.longURL)
  urlDatabase[req.params.shortURL] = req.body.longURL
  res.redirect(`/urls/${req.params.shortURL}`)
 })
