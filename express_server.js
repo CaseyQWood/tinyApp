@@ -29,20 +29,25 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 // END OF MY URLS-------------------
 
-// LOGIN--------------------
+// LOGIN/LOGOUT--------------------
 app.post('/login', (req, res) => {
   res.cookie('username', req.body.username)
-  console.log('cookies:', req.cookies)
-  console.log('signed cookies:', req.signedCookies)
   res.redirect('/urls');
-  // res.send(200) check this later
 })
-// END OF LOGIN-------------
+
+app.post('/logout', (req, res) => {
+  res.clearCookie('username')
+  res.redirect('urls/')
+})
+// END OF LOGIN/LOGOUT-------------
 
 
 // NEW URLS ------------------------
 app.get('/urls/new', (req, res) => {
-  res.render('urls_new');
+  const templateVars = {
+    username: req.cookies["username"]
+  }
+  res.render('urls_new', templateVars);
 })
 
 app.post("/urls", (req, res) => {
@@ -52,7 +57,11 @@ app.post("/urls", (req, res) => {
 });
 
 app.get('/urls/:shortURL', (req, res) => {
-  const templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL]};
+  const templateVars = { 
+    shortURL: req.params.shortURL,
+     longURL: urlDatabase[req.params.shortURL],
+     username: req.cookies["username"]
+    };
   res.render('urls_show', templateVars);
 })
 
