@@ -1,11 +1,13 @@
 const bodyParser = require("body-parser");
 const express = require('express');
 const cookieParser = require('cookie-parser')
+const morgan = require('morgan');
 const app = express();
 const PORT = 8080 ;
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser())
 app.set('view engine', 'ejs');
+app.use(morgan('dev'))
 
 // DATABASES
 const urlDatabase = { 
@@ -39,11 +41,21 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 // END OF MY URLS-------------------
 
 // LOGIN/LOGOUT--------------------
+app.get('/login', (req, res) => {
+  const templateVars = {
+    user: req.cookies['user_id'],
+    urls: urlDatabase,
+    users
+  };
+  res.render('login', templateVars)
+})
+
 app.post('/login', (req, res) => {
-  res.cookie('username', req.body.username)
+  // res.cookie('username', req.body.username)
   res.redirect('/urls');
 })
 
+// logout
 app.post('/logout', (req, res) => {
   res.clearCookie('user_id')
   res.redirect('urls/')
@@ -56,7 +68,6 @@ app.get('/urls/registration', (req, res) => {
     user: req.cookies['user_id'],
     urls: urlDatabase,
     users
-
   };
   res.render('registration', templateVars);
 })
@@ -64,12 +75,16 @@ app.get('/urls/registration', (req, res) => {
 app.post('/urls/registration', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
+
+  if(!email || !password) {
+    return res.send('sorry seems we are missing some info')
+  }
   
   // check to see if email already exsists
   for (const acccount in users) {
     if (email === users[acccount].email) {
       console.log('test')
-       return res.redirect('/fail')
+       return res.send(400, 'Seems you have already registed')
     }
   }
 

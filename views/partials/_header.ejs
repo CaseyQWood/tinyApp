@@ -15,10 +15,7 @@
         <form action='/logout' method=POST><button type="submit" class="btn btn-secondary">logout</button></form>
         <% } else { %>
         <small class='form-text text-muted'><%=user%></small>
-        <form action='/login' method='POST' class="form-inline">
-          <input type="text" class="form-control" placeholder="Username" name='username'>
-          <button type="submit" class="btn btn-secondary">Submit</button>
-        </form>
+          <a href='/login'><button type="submit" class="btn btn-secondary">login</button></a>
         <% } %>
     </div>
   </nav>
