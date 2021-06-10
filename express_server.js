@@ -19,23 +19,45 @@ const users = {
     id: 'abcd',
     email: 'toot@gmail.com',
     password: 'toot',
-
   }
 }
 // DATABASES
 
 // MY URLS FUNCTIONALITY-------------
 app.get('/urls', (req, res) => {
+  
+  // dry this up
+  const urlsPerUser = (user, dataBase) => {
+    let newDb = {}
+    for (const key in dataBase) {
+      console.log('this is key', dataBase[key].userId)
+      console.log('this is db:', dataBase[key])
+      if (dataBase[key].userId === user) {
+        newDb[key] = dataBase[key]
+      }
+    }
+    return newDb
+  }
+
+
   const templateVars = {
     user: req.cookies['user_id'],
-    urls: urlDatabase,
+    urls: urlsPerUser(req.cookies['user_id'], urlDatabase),
     users
   }
+  if (!req.cookies['user_id'])  { 
+    templateVars.urls = {}
+  }
+
   res.render('urls_index', templateVars);
 })
 
 app.post("/urls/:shortURL/delete", (req, res) => {
-  delete urlDatabase[req.params.shortURL];
+  const user = req.cookies['user_id']
+  const url = urlDatabase[req.params.shortURL]
+  if (user === url.userId) {
+    delete url;
+  }
   res.redirect('/urls');
 });
 // END OF MY URLS-------------------
@@ -124,7 +146,7 @@ app.get('/urls/new', (req, res) => {
 
 app.post("/urls", (req, res) => {
   let randoSmall = generateRandomString();
-  urlDatabase[randoSmall] = req.body.longURL;
+  urlDatabase[randoSmall] = {longURL: req.body.longURL, userId: req.cookies['user_id']};
   res.redirect(`/urls/${randoSmall}`);
 });
 
@@ -140,7 +162,11 @@ app.get('/urls/:shortURL', (req, res) => {
 
 // Edit LongUrl
 app.post('/urls/:shortURL/edit', (req, res) => {
- urlDatabase[req.params.shortURL] = req.body.longURL
+  const user = req.cookies['user_id']
+  const url = urlDatabase[req.params.shortURL]
+  if (user === url.userId) {
+    urlDatabase[req.params.shortURL] = req.body.longURL
+  } 
  res.redirect(`/urls/${req.params.shortURL}`)
 })
 // redirect from created page
