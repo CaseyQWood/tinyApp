@@ -2,13 +2,16 @@ const bodyParser = require("body-parser");
 const express = require('express');
 const cookieParser = require('cookie-parser')
 const morgan = require('morgan');
+const bcrypt = require('bcrypt')
+
 const app = express();
 const PORT = 8080 ;
+
+// MIDDLEWARE
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser())
 app.set('view engine', 'ejs');
 app.use(morgan('dev'))
-
 // DATABASES
 const urlDatabase = { 
   "b2xVn2": {longURL: "http://www.lighthouselabs.ca", userId: "aJ48lW"},
@@ -21,7 +24,7 @@ const users = {
     password: 'toot',
   }
 }
-// DATABASES
+// END OF DATABASES
 
 // MY URLS FUNCTIONALITY-------------
 app.get('/urls', (req, res) => {
@@ -73,20 +76,13 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
-  console.log(users)
     for(const account in users) {
-      if(email !== users[account].email ) {
-        res.send('Response: 403. \nNo user found. please register')
+      if(email === users[account].email && bcrypt.compareSync(password, users[account].password)) {
+        res.cookie('user_id', account)
+        return res.redirect('/urls');
        } 
-       if(email === users[account].email && password !== users[account].password) {
-        res.send('Response: 403. \nIncorrect login information, please try again')
-       } 
-      if(email === users[account].email && password === users[account].password) {
-       res.cookie('user_id', account)
-      } 
     }
-
-  res.redirect('/urls');
+  res.send('Response: 403. \nIncorrect login information, please try again')
 })
 
 // logout
@@ -108,12 +104,10 @@ app.get('/urls/registration', (req, res) => {
 
 app.post('/urls/registration', (req, res) => {
   const email = req.body.email;
-  const password = req.body.password;
-
+  const password = bcrypt.hashSync(req.body.password, 10)
   if(!email || !password) {
     return res.send('sorry seems we are missing some info')
   }
-  
   // check to see if email already exsists
   for (const acccount in users) {
     if (email === users[acccount].email) {
@@ -121,9 +115,10 @@ app.post('/urls/registration', (req, res) => {
        return res.send(400, 'Seems you have already registed')
     }
   }
-
   const newId = generateRandomString();
+
   users[newId] = {id: newId, email, password};
+
   res.cookie('user_id', newId);
   res.redirect('/urls');
 })
