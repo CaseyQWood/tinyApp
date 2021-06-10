@@ -11,8 +11,8 @@ app.use(morgan('dev'))
 
 // DATABASES
 const urlDatabase = { 
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": {longURL: "http://www.lighthouselabs.ca", userId: "aJ48lW"},
+  "9sm5xK": {longURL: "http://www.google.com", userId: "aJ48lW"}
 };
 const users = {
   abcd: {
@@ -116,7 +116,7 @@ app.get('/urls/new', (req, res) => {
     user: req.cookies['user_id'],
     users
   }
-  if(!res.cookies) {
+  if(!req.cookies['user_id']) {
     return res.redirect('/urls/registration')
   }
   res.render('urls_new', templateVars);
@@ -131,7 +131,7 @@ app.post("/urls", (req, res) => {
 app.get('/urls/:shortURL', (req, res) => {
   const templateVars = { 
     shortURL: req.params.shortURL,
-     longURL: urlDatabase[req.params.shortURL],
+     longURL: urlDatabase[req.params.shortURL].longURL,
      user: req.cookies['user_id'],
      users
     };
@@ -145,8 +145,8 @@ app.post('/urls/:shortURL/edit', (req, res) => {
 })
 // redirect from created page
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL];
-  res.redirect(`http://${longURL}`);
+  const longURL = urlDatabase[req.params.shortURL].longURL;
+  res.redirect(`${longURL}`);
 });
 // NEW URLS END------------------------
 
