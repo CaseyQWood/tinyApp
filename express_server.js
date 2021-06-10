@@ -30,8 +30,6 @@ app.get('/urls', (req, res) => {
   const urlsPerUser = (user, dataBase) => {
     let newDb = {}
     for (const key in dataBase) {
-      console.log('this is key', dataBase[key].userId)
-      console.log('this is db:', dataBase[key])
       if (dataBase[key].userId === user) {
         newDb[key] = dataBase[key]
       }
@@ -171,8 +169,10 @@ app.post('/urls/:shortURL/edit', (req, res) => {
 })
 // redirect from created page
 app.get("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase[req.params.shortURL].longURL;
-  res.redirect(`${longURL}`);
+  const longURL = urlDatabase[req.params.shortURL];
+  // this is a ternerary
+  let urlCheck = longURL.longURL.includes("https://") || longURL.longURL.includes("http://") ? `${longURL.longURL}` : `https://${longURL.longURL}` 
+  res.redirect(urlCheck);
 });
 // NEW URLS END------------------------
 
