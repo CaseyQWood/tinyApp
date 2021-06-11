@@ -18,7 +18,21 @@ const findUserByEmail = (email, database) => {
       return true
     }
   }
-}
+} 
+
+const getUserByEmail = (email, database) => {
+  for (const account in database) {
+    if (email === database[account].email) {
+      console.log(account)
+      return account
+    }
+  }
+} 
+
+
+
+
+
 // findUserById(req.session.user_id, users)
 const findUserById = (userId, database) => {
   for (const acccount in database) {
@@ -32,5 +46,6 @@ module.exports = {
   generateRandomString,
   urlsPerUser, 
   findUserByEmail, 
-  findUserById
+  findUserById,
+  getUserByEmail
 }
