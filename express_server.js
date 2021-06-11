@@ -3,6 +3,7 @@ const express = require('express');
 const cookieSession = require('cookie-session')
 const morgan = require('morgan');
 const bcrypt = require('bcrypt')
+const {generateRandomString, urlsPerUser, findUserByEmail, findUserById} = require('./helpers')
 
 const app = express();
 const PORT = 8080 ;
@@ -31,24 +32,13 @@ const users = {
 
 // MY URLS FUNCTIONALITY-------------
 app.get('/urls', (req, res) => {
-  // dry this up
-  const urlsPerUser = (user, dataBase) => {
-    let newDb = {}
-    for (const key in dataBase) {
-      if (dataBase[key].userId === user) {
-        newDb[key] = dataBase[key]
-      }
-    }
-    return newDb
-  }
   const templateVars = {
     user: users[req.session.user_id],
     urls: urlsPerUser(req.session.user_id, urlDatabase),
-  }
+  };
   if (!req.session.user_id)  { 
     templateVars.urls = {}
-  }
-
+  };
   res.render('urls_index', templateVars);
 })
 
@@ -75,18 +65,24 @@ app.get('/login', (req, res) => {
 app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
+
+  // if (!findUserByEmail(email, users)) { 
+  //   return res.redirect(403).send(' seems some of the info you entered is incorrect, please try again and confirm you have registered')
+  // }
     for(const account in users) {
-      if(email === users[account].email && bcrypt.compareSync(password, users[account].password)) {
+      console.log('this is password test:', bcrypt.compareSync(password, users[account].password))
+      if (bcrypt.compareSync(password, users[account].password) && findUserByEmail(email, users)) {
+        console.log('this is account:', account)
         req.session.user_id = account
         return res.redirect('/urls');
-       } 
+      } 
     }
-  res.send('Response: 403. \nIncorrect login information, please try again')
+  res.status(403).send('Incorrect login information, please try again')
 })
 
 // logout
 app.post('/logout', (req, res) => {
-  res.clearCookie('user_id')
+  req.session = null
   res.redirect('urls/')
 })
 // END OF LOGIN/LOGOUT-------------
@@ -108,12 +104,18 @@ app.post('/urls/registration', (req, res) => {
     return res.send('sorry seems we are missing some info')
   }
   // check to see if email already exsists
-  for (const acccount in users) {
-    if (email === users[acccount].email) {
-      console.log('test')
+  // const findUserByEmail = (email, database) => {
+  //   for (const acccount in database) {
+  //     if (email === database[acccount].email) {
+  //       return true
+  //     }
+  //   }
+  // }
+
+  
+    if (findUserByEmail(email, users)) {
        return res.send(400, 'Seems you have already registed')
     } 
-  }
   const newId = generateRandomString();
 
   users[newId] = {id: newId, email, password};
@@ -169,9 +171,6 @@ app.get("/u/:shortURL", (req, res) => {
 // NEW URLS END------------------------
 
 
-function generateRandomString() {
-  return Math.random().toString(36).substr(2, 5);
-};
 
 app.listen(PORT, () => {
   console.log(`connected on port: ${PORT}!`);
