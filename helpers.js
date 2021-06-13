@@ -29,11 +29,6 @@ const getUserByEmail = (email, database) => {
   }
 } 
 
-
-
-
-
-// findUserById(req.session.user_id, users)
 const findUserById = (userId, database) => {
   for (const acccount in database) {
     if (userId === database[acccount].id) {
