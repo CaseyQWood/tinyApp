@@ -30,14 +30,14 @@ const users = {
 };
 // END OF DATABASES--------
 
-// NO PAGE ---------------
+// ROOT PAGE ---------------
 app.get('/', (req, res) => {
   if (req.session.user_id) {
     return res.redirect('/urls');
   }
   res. redirect('/login');
 });
-// NO PAGE END -----------
+// ROOT PAGE END -----------
 
 
 // MY URLS FUNCTIONALITY-------------
@@ -47,7 +47,7 @@ app.get('/urls', (req, res) => {
     urls: urlsPerUser(req.session.user_id, urlDatabase),
   };
   if (!req.session.user_id)  {
-    templateVars.urls = {};
+    return res.redirect('/login')
   }
   res.render('urls_index', templateVars);
 });
@@ -97,19 +97,23 @@ app.post('/logout', (req, res) => {
 // END OF LOGIN/LOGOUT-------------
 
 //REGISTRATION PAGE-----------------
-app.get('/urls/registration', (req, res) => {
+app.get('/registration', (req, res) => {
   const templateVars = {
     user: users[req.session.user_id],
     urls: urlDatabase,
-    users
   };
   res.render('registration', templateVars);
 });
 
-app.post('/urls/registration', (req, res) => {
+app.post('/registration', (req, res) => {
   const email = req.body.email;
   const password = bcrypt.hashSync(req.body.password, 10);
-  if (!email || !password) {
+
+  if(req.body.password.length < 8) {
+    return res.send('please choose a password of at least 8 characters')
+  }
+
+  if (!email || !req.body.password) {
     return res.send('sorry seems we are missing some info');
   }
   if (findUserByEmail(email, users)) {
@@ -129,7 +133,7 @@ app.get('/urls/new', (req, res) => {
     user: users[req.session.user_id],
   };
   if (!req.session.user_id) {
-    return res.redirect('/urls/registration');
+    return res.redirect('/login');
   }
   res.render('urls_new', templateVars);
 });
@@ -139,9 +143,9 @@ app.post("/urls", (req, res) => {
     res.status(304).send('please log in to access this feature');
   }
 
-  let randoSmall = generateRandomString();
-  urlDatabase[randoSmall] = {longURL: req.body.longURL, userId: req.session.user_id};
-  res.redirect(`/urls/${randoSmall}`);
+  let randomId = generateRandomString();
+  urlDatabase[randomId] = {longURL: req.body.longURL, userId: req.session.user_id};
+  res.redirect(`/urls/${randomId}`);
 });
 
 app.get('/urls/:shortURL', (req, res) => {
@@ -150,6 +154,10 @@ app.get('/urls/:shortURL', (req, res) => {
 
   if (!cookieId) {
     return res.send('Please log in to view urls');
+  }
+
+  if (!urlDatabase[newShortURL]) {
+    return res.send('This page is unable to be acessed')
   }
 
   if (cookieId !== urlDatabase[newShortURL].userId) {
