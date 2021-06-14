@@ -3,7 +3,7 @@ function generateRandomString() {
 };
 
 const urlsPerUser = (user, dataBase) => {
-  let newDb = {}
+  const newDb = {}
   for (const key in dataBase) {
     if (dataBase[key].userId === user) {
       newDb[key] = dataBase[key]

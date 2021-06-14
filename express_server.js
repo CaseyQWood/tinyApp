@@ -8,7 +8,7 @@ const {generateRandomString, urlsPerUser, findUserByEmail} = require('./helpers'
 const app = express();
 const PORT = 8080;
 
-// MIDDLEWARE
+// MIDDLEWARE---------------
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieSession({
   name: 'user_id',
@@ -38,10 +38,9 @@ app.get('/', (req, res) => {
   }
   res. redirect('/login');
 });
-// ROOT PAGE END -----------
-
 
 // MY URLS FUNCTIONALITY-------------
+// rendering /urls page and checks if user is logged in
 app.get('/urls', (req, res) => {
   const templateVars = {
     user: users[req.session.user_id],
@@ -55,7 +54,7 @@ app.get('/urls', (req, res) => {
   res.render('urls_index', templateVars);
 });
 
-
+// manages deleting URL from database and checks that user is logged in and owns access to specific urls
 app.post("/urls/:shortURL/delete", (req, res) => {
   const user = req.session.user_id;
   let url = urlDatabase[req.params.shortURL];
@@ -73,16 +72,18 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 });
 // END OF MY URLS-------------------
 
-// LOGIN/LOGOUT--------------------
+// LOGIN/LOGOUT FUNCTIONALITY--------------------
+// renders the login page and hands loged in user details to ejs file
 app.get('/login', (req, res) => {
   const templateVars = {
     user: users[req.session.user_id],
     urls: urlDatabase,
   };
-
+  
   res.render('login', templateVars);
 });
 
+// manages checking for correct login credentials
 app.post('/login', (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
@@ -97,14 +98,15 @@ app.post('/login', (req, res) => {
   res.status(403).send('Incorrect login information, please try again');
 });
 
-// logout
+// logs user out by removing cookie 
 app.post('/logout', (req, res) => {
   req.session = null;
   res.redirect('urls/');
 });
-// END OF LOGIN/LOGOUT-------------
+//END OF LOGIN/LOGOUT-------------
 
 //REGISTRATION PAGE-----------------
+// renders registration page and hands over logged in user details to ejs file
 app.get('/registration', (req, res) => {
   const templateVars = {
     user: users[req.session.user_id],
@@ -114,6 +116,7 @@ app.get('/registration', (req, res) => {
   res.render('registration', templateVars);
 });
 
+// handles registering new user along with setting requirements: minimum 8 characters for password, entered password and email and not already registered
 app.post('/registration', (req, res) => {
   const email = req.body.email;
   const password = bcrypt.hashSync(req.body.password, 10);
@@ -137,8 +140,8 @@ app.post('/registration', (req, res) => {
 });
 //END OF REGISTRATION PAGE----------
 
-
 // NEW URLS ------------------------
+// renders page for making new short URLS, if user not logged in redirects to login
 app.get('/urls/new', (req, res) => {
   const templateVars = {
     user: users[req.session.user_id],
@@ -151,6 +154,7 @@ app.get('/urls/new', (req, res) => {
   res.render('urls_new', templateVars);
 });
 
+// manages submission from /urls/new, redundant check to see if user are logged in, and creates short url with randomly generated id then redirects
 app.post("/urls", (req, res) => {
   const randomId = generateRandomString();
 
@@ -162,6 +166,7 @@ app.post("/urls", (req, res) => {
   res.redirect(`/urls/${randomId}`);
 });
 
+// renders specific short url page plus checks that user is logged in, has permision to view specific shorturl page and that the short url page exsists
 app.get('/urls/:shortURL', (req, res) => {
   const cookieId = req.session.user_id;
   const newShortURL = req.params.shortURL;
@@ -186,7 +191,7 @@ app.get('/urls/:shortURL', (req, res) => {
   res.render('urls_show', templateVars);
 });
 
-// Edit LongUrl
+// manages the submission for changing the long url along with checks user is logged in and has permission
 app.post('/urls/:shortURL', (req, res) => {
   const user = req.session.user_id;
   const url = urlDatabase[req.params.shortURL];
@@ -196,14 +201,14 @@ app.post('/urls/:shortURL', (req, res) => {
   }
 
   if (user === url.userId) {
-    url.longURL =  req.body.longURL;
+    url.longURL = req.body.longURL;
     return res.redirect('/urls');
   }
 
   res.redirect(`/urls/${req.params.shortURL}`);
 });
 
-// redirect from created page
+// handles the short url link to the long url site which includes checking to see if the inputed long url includes http/s and adds if needed
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL];
 
@@ -211,12 +216,14 @@ app.get("/u/:shortURL", (req, res) => {
     res.send('Unknown url, please make sure to create url');
   }
 
-  let urlCheck = longURL.longURL.includes("https://") || longURL.longURL.includes("http://") ? `${longURL.longURL}` : `https://${longURL.longURL}`;
+  const includesProtocol = longURL.longURL.includes("https://") || longURL.longURL.includes("http://")
+  let urlCheck = includesProtocol ? `${longURL.longURL}` : `https://${longURL.longURL}`;
   
   res.redirect(urlCheck);
 });
 // NEW URLS END------------------------
 
+// sets the port to listen on 
 app.listen(PORT, () => {
   console.log(`connected on port: ${PORT}!`);
 });
