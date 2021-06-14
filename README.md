@@ -31,10 +31,12 @@ TinyApp is a full stack web application built with Node and Express that allows 
 
 #### Comment example 
 // THIS IS THE [EXAMPLE] FUNCTIONALITY----------------------
+
 // this renders example
 app.get('/xyz' ....)
 
 // this actions (xyz) and checks for (abc)
 app.post('/xyz' ....)
+
 // END OF EXAMPLE --------------------------
 
